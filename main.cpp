@@ -4,48 +4,36 @@
 #include "vector"
 #include "set"
 #include "algorithm"
+#include "string"
 #include "include/matplotlibcpp.h"
 #include "include/polygon.h"
 
 namespace plt = matplotlibcpp;
-/*
-// Class create a Polygon object using input coordinates.
-class Polygon
+
+std::vector<float> prepare_points_for_lines(const std::vector<float> &points)
 {
-    std::vector<std::pair<float, float>> coordinates;
-    std::set<float> x_coordinates, y_coordinates;
+    auto temp = points;
+    temp.push_back(temp[0]);
+    return temp;
+}
 
-public:
-    Polygon(std::vector<std::pair<float, float>> input_coordinates)
-    {
-        this->coordinates = input_coordinates;
+void plot_line_with_symbol(const Polygon &obj, const std::string &symbol, const std::string &line_style)
+{
+    // Plot the vertices
+    plt::plot(obj.get_x_coordinates(),obj.get_y_coordinates(), symbol);
 
-        for (auto coordinate : this->coordinates)
-        {
-            x_coordinates.insert(coordinate.first);
-            y_coordinates.insert(coordinate.second);
-        }
-    }
+    // Draw the lines for a closed polygon.
+    // Close the polygon the first vertex is inserted to the end of the vector.
+    plt::plot(prepare_points_for_lines(obj.get_x_coordinates()),prepare_points_for_lines(obj.get_y_coordinates()), line_style);
+}
 
-    Polygon operator-(Polygon const &obj)
-    {
-        std::vector<std::pair<float, float>> new_coordinates;
-        new_coordinates.resize(std::max(this->coordinates.size(), obj.coordinates.size()));
-    }
-
-    void print_coordinates()
-    {
-        for (auto coordinate : this->coordinates)
-        {
-            std::cout << coordinate.first << " " << coordinate.second << std::endl;
-        }
-    }
-};
-*/
 int main()
 {
-    Polygon first_polygon({{0, 0}, {4, 0}, {4, 2}, {2, 0}});
+    Polygon first_polygon({{0, 0}, {4, 0}, {4, 2}, {0, 2}});
     Polygon second_polygon({{3, 1}, {3, 3}, {6, 3}, {6, 1}});
-    first_polygon.print_coordinates();
-    second_polygon.print_coordinates();
+   
+    plot_line_with_symbol(first_polygon,"x","r-");
+    plot_line_with_symbol(second_polygon,"x","b-");
+
+    plt::show();
 }

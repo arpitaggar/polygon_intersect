@@ -26,10 +26,10 @@
 #include <vector>
 #include <sstream>
 
-#include </Library/Frameworks/Python.framework/Headers/Python.h>
+#include <python3.10/Python.h>
 #ifndef WITHOUT_NUMPY
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
-#include </Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/numpy/core/include/numpy/arrayobject.h>
+#include <numpy/arrayobject.h>
 #endif // WITHOUT_NUMPY
 
 #if PY_MAJOR_VERSION >= 3
