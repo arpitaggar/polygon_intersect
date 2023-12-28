@@ -1,7 +1,0 @@
-cmake_minimum_required(VERSION 3.28)
-project(polygon_intersect)
-find_package(Python3 COMPONENTS Interpreter Development Numpy)
-include_directories($(Python3_INCLUDE_DIRS) include)
-add_executable(result_plot main.cpp)
-target_link_libraries(result_plot $(Python3_LIBRARIES))
-set_property(TARGET result_plot PROPERTY CXX_STANDARD 11)
