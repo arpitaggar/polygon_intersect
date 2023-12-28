@@ -1,4 +1,3 @@
-
 #include "iostream"
 #include "utility"
 #include "vector"
@@ -11,6 +10,7 @@
 
 namespace plt = matplotlibcpp;
 
+// Function to append the first coordinate to the end of the coordinated vector. This is done to created a closed polygon.
 std::vector<float> prepare_points_for_lines(const std::vector<float> &points)
 {
     auto temp = points;
@@ -18,6 +18,8 @@ std::vector<float> prepare_points_for_lines(const std::vector<float> &points)
     return temp;
 }
 
+// Function to plot the vertices of each Polygon object passed.
+// This function will also prepared vertices etc.
 void plot_line_with_symbol(const Polygon &obj, const std::string &symbol, const std::string &line_style)
 {
     // Plot the vertices
@@ -28,110 +30,61 @@ void plot_line_with_symbol(const Polygon &obj, const std::string &symbol, const 
     plt::plot(prepare_points_for_lines(obj.get_x_coordinates()), prepare_points_for_lines(obj.get_y_coordinates()), line_style);
 }
 
-void print_coordinate(const std::vector<std::pair<float, float>> &c)
+// Function to call plot function for first, second and resulting polygon.
+void plot_polygons(const Polygon &p1, const Polygon &p2, const Polygon &p3)
 {
-    for (auto a : c)
-    {
-        std::cout << a.first << ", "<< a.second << std::endl;
-    }
+    plt::clf();
+    plot_line_with_symbol(p1, "x", "r-");
+    plot_line_with_symbol(p2, "x", "b-");
+    plot_line_with_symbol(p3, "o", "c--");
+    
 }
 
-// std::vector<std::pair<float, float>> find_overlapping_coordinate(const Polygon &p1, const Polygon &other_polygon)
-// {
-//     std::vector<std::pair<float, float>> overlap_coordinates;
+// Wrapper function to get intersection of two polygons and export the plot.
+void do_intersect(Polygon &first_polygon, Polygon &second_polygon)
+{
+    auto result_polygon = first_polygon.intersect(second_polygon);
+    std::cout<<"\nResulting Polygon from Intersect Operation:"<<std::endl;
+    result_polygon.print_coordinate(result_polygon.get_coordinates());
+    plot_polygons(first_polygon, second_polygon, result_polygon);
+    plt::savefig("result_intersect.png");
+}
 
-//     for (auto p1_coord : p1.get_coordinates())
-//     {
-//         auto x = p1_coord.first;
-//         auto y = p1_coord.second;
+// Wrapper function to get difference of two polygons and export the plot.
+void do_difference(Polygon &first_polygon, Polygon &second_polygon)
+{
+    auto result_polygon = first_polygon - second_polygon;
 
-//         auto other_x_coord = other_polygon.get_x_coordinates();
-//         auto other_y_coord = other_polygon.get_y_coordinates();
+    std::cout<<"\nResulting Polygon from Difference Operation:"<<std::endl;
+    result_polygon.print_coordinate(result_polygon.get_coordinates());
 
-//         auto x_min = *std::min_element(other_x_coord.begin(), other_x_coord.end());
-//         auto x_max = *std::max_element(other_x_coord.begin(), other_x_coord.end());
-//         auto y_min = *std::min_element(other_y_coord.begin(), other_y_coord.end());
-//         auto y_max = *std::max_element(other_y_coord.begin(), other_y_coord.end());
+    plot_polygons(first_polygon, second_polygon, result_polygon);
 
-//         if ((x >= x_min && x <= x_max) && (y >= y_min && y <= y_max))
-//         {
-//             overlap_coordinates.push_back({x, y});
-//         }
-//     }
-//     return overlap_coordinates;
-// }
+    plt::savefig("result_difference.png");
+}
 
-// std::vector<std::pair<float, float>> re_order_coordinates(std::vector<std::pair<float, float>> coordinates)
-
-// {   
-//     std::vector<std::pair<float, float>> ordered_points;
-//     auto size_vector = coordinates.size();
-//     //ordered_points.resize(coordinates.size());
-
-//     ordered_points.push_back(coordinates[0]);
-
-    
-//     // std::cout<<"\nSize:"<<size_vector;
-//     // std::cout<<"\nordered_points.size():"<<ordered_points.size();
-//     while (ordered_points.size()<size_vector)
-//     {
-//         // for(auto a: coordinates)
-//             // std::cout<<"\n1-Coordinates First:"<<a.first<<", "<< "Second: " <<a.second<<std::endl;
-        
-//         // std::cout<<"\nPrinting array size:" <<ordered_points.size();
-//         auto point = ordered_points[ordered_points.size()];
-
-//         std::vector<float> lengths ;
-
-//         std::map<float, std::pair<float, float>> map_length_coodinates;
-//         std::map<float, size_t> map_length_idx;
-//         // std::vector<size_t> idx;
-
-
-//         for (size_t i = 1; i < coordinates.size(); i++)
-//         {   
-//             float x_sqrd = std::pow(coordinates[i].first - point.first, 2);
-//             float y_sqrd = std::pow(coordinates[i].second - point.second, 2);
-
-//             float distance = std::sqrt(x_sqrd+y_sqrd);
-//             lengths.push_back(distance);
-//             // std::cout<<"\nHello "<<distance<<", "<<i<<std::endl;
-//             map_length_coodinates.insert({distance, {coordinates[i].first, coordinates[i].second}});
-//             map_length_idx.insert({distance, i});
-//             // idx.push_back(i);
-
-//         }
-
-//         float min_length = *std::min_element(lengths.begin(), lengths.end());
-//         // std::cout<<"Min lenght"<<min_length;
-//         ordered_points.push_back({map_length_coodinates.at(min_length).first, map_length_coodinates.at(min_length).second} );
-
-//         //std::cout<<"Min length:"<<min_length<<", "<<"Coordinate: "<<map_length_coodinates.at(min_length).first<<map_length_coodinates.at(min_length).second<<" Idx: "<<map_length_idx.at(min_length)<<std::endl;
-//         coordinates.erase(coordinates.begin() + map_length_idx.at(min_length));
-
-//     //    for(auto a: ordered_points)
-//     //     std::cout<<"2-Coordinates First:"<<a.first<<", "<< "Second: " <<a.second<<std::endl;
-
-//     //         for(auto a: coordinates)
-//     //     std::cout<<"3-Coordinates First:"<<a.first<<", "<< "Second: " <<a.second<<std::endl;
-
-
-//     }
-
-//     return ordered_points;
-// }
+// Wrapper function to get union of two polygons and export the plot.
+void do_union(Polygon &first_polygon, Polygon &second_polygon)
+{
+    auto result_polygon = first_polygon + second_polygon;
+    std::cout<<"\nResulting Polygon from Union Operation:"<<std::endl;
+    result_polygon.print_coordinate(result_polygon.get_coordinates());
+    plot_polygons(first_polygon, second_polygon, result_polygon);
+    plt::savefig("result_union.png");
+}
 
 int main()
 {
+    // Create first polygon object.
     Polygon first_polygon({{0, 0}, {4, 0}, {4, 2}, {0, 2}});
-    Polygon second_polygon({{3, 1}, {3, 3}, {6, 3}, {6, 1}});
-    //Polygon second_polygon({{5, 1}, {5, 3}, {6, 3}, {6, 1}});
+    // Create second polygon object.
+    Polygon second_polygon({{3, 1}, {3, 3}, {6, 3}, {6, 1}}); //Polygon with intersection
+    //Polygon second_polygon({{5, 1}, {5, 3}, {6, 3}, {6, 1}}); // Polygon without intersection
 
-    plot_line_with_symbol(first_polygon, "x", "r-");
-    plot_line_with_symbol(second_polygon, "x", "b-");
+    // Do the three operations.
+    do_union(first_polygon, second_polygon);
+    do_intersect(first_polygon, second_polygon);
+    do_difference(first_polygon, second_polygon);
 
-    auto comon = first_polygon.intersect(second_polygon);
-    plot_line_with_symbol(comon, "o", "c--");
-
-    plt::show();
+    plt::close();
 }
