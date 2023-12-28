@@ -95,7 +95,8 @@ public:
         return intersect_coordinates;
     }
 
-    std::vector<std::pair<float, float>> re_order_coordinates(std::vector<std::pair<float, float>> coordinates)
+    std::vector<std::pair<float, float>> re_order_coordinates(const std::vector<std::pair<float, float>> &intersection_coordinates,
+        std::vector<std::pair<float, float>> coordinates)
 
     {   
         std::setprecision(5);
@@ -106,7 +107,8 @@ public:
         ordered_points.push_back(coordinates[0]);
 
         // std::cout<<"\nSize:"<<size_vector;
-        // std::cout<<"\nordered_points.size():"<<ordered_points.size();
+        std::cout<<"\nordered_points.size():"<<ordered_points.size();
+        
         int counter = 0;
         while (ordered_points.size() < size_vector)
         {
@@ -122,10 +124,16 @@ public:
             std::map<float, size_t> map_length_idx;
             //std::vector<size_t> idx;
 
-            std::cout<<"\nPrint Point:"<<point.first<<", "<<point.second;
+            std::cout<<"\nPrint Point:"<<point.first<<", "<<point.second<<std::endl;
+
+            bool point_is_intersect = std::find(intersection_coordinates.begin(), intersection_coordinates.end(), point)!=intersection_coordinates.end()? true:false;
 
             for (size_t i = 1; i < coordinates.size(); i++)
             {
+                bool target_point_is_intersect = std::find(intersection_coordinates.begin(), intersection_coordinates.end(), coordinates[i])!=intersection_coordinates.end()? true:false;
+
+                if(point_is_intersect == true && target_point_is_intersect==true)
+                    continue;
                 float x_sqrd = std::pow(coordinates[i].first - point.first, 2);
                 float y_sqrd = std::pow(coordinates[i].second - point.second, 2);
 
@@ -205,6 +213,29 @@ public:
         std::cout << "Size After " << target_coordinates.size()<<redundant_coordinates.size()<< std::endl;
     }
 
+    Polygon intersect(Polygon const &obj)
+    {
+        std::vector<std::pair<float, float>> new_coordinates;
+
+        // get intersection points
+        auto intersection_coordinates = this->find_intersections(obj);
+        auto additional_coordinates1 = this->find_overlapping_coordinate(*this, obj);
+        auto additional_coordinates2 = this->find_overlapping_coordinate(obj, *this);
+
+        if (intersection_coordinates.empty()==true)
+        {
+            std::cout<<"The two polygons do not Overlap.";
+            exit(0);
+        }
+        intersection_coordinates.insert(intersection_coordinates.end(), additional_coordinates1.begin(), additional_coordinates1.end());
+        intersection_coordinates.insert(intersection_coordinates.end(), additional_coordinates2.begin(), additional_coordinates2.end());
+        //intersection_coordinates.resize();
+        print_coordinate(intersection_coordinates);
+        intersection_coordinates = this->re_order_coordinates({}, intersection_coordinates);
+
+        return Polygon(intersection_coordinates);
+    }
+
     Polygon operator-(Polygon const &obj)
     {
         std::vector<std::pair<float, float>> new_coordinates;
@@ -221,7 +252,34 @@ public:
         new_coordinates.insert(new_coordinates.end(), additional_coordinates.begin(), additional_coordinates.end());
 
         print_coordinate(new_coordinates);
-        new_coordinates = this->re_order_coordinates(new_coordinates);
+        new_coordinates = this->re_order_coordinates(intersection_coordinates, new_coordinates);
+
+
+        std::cout<<"AFTER REORDER\n";
+        print_coordinate(new_coordinates);
+
+        return Polygon(new_coordinates);
+    }
+
+    Polygon operator+(Polygon const &obj)
+    {
+        std::vector<std::pair<float, float>> new_coordinates;
+        new_coordinates.insert(new_coordinates.end(), this->coordinates.begin(), this->coordinates.end());
+        new_coordinates.insert(new_coordinates.end(), obj.coordinates.begin(), obj.coordinates.end());
+
+        // get intersection points
+        auto intersection_coordinates = this->find_intersections(obj);
+        // auto redundant_coordinates = this->find_overlapping_coordinate(*this, obj);
+        // auto additional_coordinates = this->find_overlapping_coordinate(obj, *this);
+
+        this->remove_redundant_coordinates(this->find_overlapping_coordinate(*this, obj), new_coordinates);
+        this->remove_redundant_coordinates(this->find_overlapping_coordinate(obj, *this), new_coordinates);
+
+        new_coordinates.insert(new_coordinates.end(), intersection_coordinates.begin(), intersection_coordinates.end());
+        //new_coordinates.insert(new_coordinates.end(), additional_coordinates.begin(), additional_coordinates.end());
+
+        print_coordinate(new_coordinates);
+        new_coordinates = this->re_order_coordinates(intersection_coordinates, new_coordinates);
 
 
         std::cout<<"AFTER REORDER\n";

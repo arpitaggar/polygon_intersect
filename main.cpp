@@ -125,48 +125,12 @@ int main()
 {
     Polygon first_polygon({{0, 0}, {4, 0}, {4, 2}, {0, 2}});
     Polygon second_polygon({{3, 1}, {3, 3}, {6, 3}, {6, 1}});
-    // Polygon second_polygon({{5, 1}, {5, 3}, {6, 3}, {6, 1}});
-
-    // first_polygon.print_coordinates();
-    // first_polygon.print_x_coordinates();
-    // first_polygon.print_y_coordinates();
-    // first_polygon.print_segments();
-
-    // second_polygon.print_coordinates();
-    // second_polygon.print_x_coordinates();
-    // second_polygon.print_y_coordinates();
-    // second_polygon.print_segments();
+    //Polygon second_polygon({{5, 1}, {5, 3}, {6, 3}, {6, 1}});
 
     plot_line_with_symbol(first_polygon, "x", "r-");
     plot_line_with_symbol(second_polygon, "x", "b-");
 
-    auto intersection_coordinates = second_polygon.find_intersections(first_polygon);
-
-    if (intersection_coordinates.empty())
-    {
-        std::cout << "No intersections found. Exiting." << std::endl;
-        return 0;
-    }
-
-    // auto overlap_coordinates1 = find_overlapping_coordinate(first_polygon, second_polygon);
-    // auto overlap_coordinates2 = find_overlapping_coordinate(second_polygon, first_polygon);
-
-    // intersection_coordinates.insert(intersection_coordinates.end(), overlap_coordinates1.begin(), overlap_coordinates1.end());
-    // intersection_coordinates.insert(intersection_coordinates.end(), overlap_coordinates2.begin(), overlap_coordinates2.end());
-
-    // // plt::plot({ic[0].first, ic[1].first}, {ic[0].second, ic[1].second}, "o");
-    // // print_coordinate(intersection_coordinates);
-
-    // // std::cout<<"Overllaping";
-    // // std::cout << "Before reordering:\n";
-    // // print_coordinate(intersection_coordinates);
-    // intersection_coordinates = re_order_coordinates(intersection_coordinates);
-
-    // // std::cout << "After reordering:\n";
-    // // print_coordinate(intersection_coordinates);
-
-    // Polygon comon(intersection_coordinates);
-    auto comon = first_polygon-second_polygon;
+    auto comon = first_polygon.intersect(second_polygon);
     plot_line_with_symbol(comon, "o", "c--");
 
     plt::show();
